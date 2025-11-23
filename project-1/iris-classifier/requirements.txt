@@ -1,0 +1,3 @@
+numpy>=1.24
+# Optional (install manually when network access is available):
+# scikit-learn>=1.3
