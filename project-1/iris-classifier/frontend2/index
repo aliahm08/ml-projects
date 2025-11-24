@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Classifying Iris Species with Interpretable ML — Case Study</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            charcoal: '#1B1F22',
+            off: '#F5F6F7',
+            teal: {
+              50: '#E6FAFB',
+              100: '#C9F3F5',
+              200: '#9EE6EA',
+              300: '#6FD6DA',
+              400: '#3EC2C8',
+              500: '#0E9BA4',
+              600: '#0E7480',
+              700: '#105C66',
+              800: '#104A52',
+              900: '#0E3C43',
+            },
+          },
+          boxShadow: {
+            'soft': '0 10px 30px rgba(0,0,0,0.25)',
+          },
+          backdropBlur: {
+            xs: '2px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { --card: rgba(255,255,255,0.06); --stroke: rgba(255,255,255,0.15); }
+    html { scroll-behavior: smooth; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'; }
+    .hfont { font-family: 'Space Grotesk', Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial; }
+    .frost {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .card { background: var(--card); border: 1px solid var(--stroke); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.show { opacity: 1; transform: none; }
+  </style>
+</head>
+<body class="bg-charcoal text-off">
+  <!-- NAV -->
+  <header class="fixed top-0 inset-x-0 z-50">
+    <div class="mx-auto max-w-7xl px-4">
+      <nav class="mt-4 flex items-center justify-between rounded-2xl frost shadow-soft px-4 py-3">
+        <a href="#top" class="hfont text-lg md:text-xl font-semibold tracking-tight text-teal-200 hover:text-teal-100 transition">Ali Ahmed</a>
+        <div class="hidden md:flex items-center gap-6 text-sm">
+          <a href="#dataset" class="hover:text-teal-200 transition">Dataset</a>
+          <a href="#framework" class="hover:text-teal-200 transition">Framework</a>
+          <a href="#results" class="hover:text-teal-200 transition">Results</a>
+          <a href="#learnings" class="hover:text-teal-200 transition">Learnings</a>
+          <a href="#future" class="hover:text-teal-200 transition">Next</a>
+        </div>
+        <a href="#repo" class="inline-flex items-center gap-2 rounded-2xl bg-teal-500/20 ring-1 ring-teal-400/40 px-3 py-1.5 text-teal-100 hover:bg-teal-500/30 transition">
+          <span class="h-2 w-2 rounded-full bg-teal-400 animate-pulse"></span>
+          <span class="text-sm font-medium">View on GitHub</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="top" class="relative min-h-[88vh] flex items-center overflow-hidden">
+    <div aria-hidden class="absolute inset-0">
+      <!-- Background image placeholder with gradient overlay -->
+      <div class="absolute inset-0" style="background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1400&auto=format&fit=crop'); background-size: cover; background-position: center;"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-teal-600/70 via-charcoal/80 to-charcoal"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-6xl px-4 pt-28 pb-16 grid md:grid-cols-12 gap-8">
+      <div class="md:col-span-8 reveal">
+        <p class="uppercase tracking-[0.25em] text-teal-200/80 text-xs md:text-sm">Case Study — ML Experiments</p>
+        <h1 class="hfont text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mt-3">
+          Classifying Iris Species with Interpretable Machine Learning
+        </h1>
+        <p class="text-teal-100/90 mt-4 max-w-2xl">
+          A compact but production-minded pipeline using the classic Iris dataset to test modeling patterns,
+          evaluation habits, and explainability tools.
+        </p>
+        <p class="text-sm text-white/70 mt-3">By Ali Ahmed — 2025 · from the <span class="font-medium">ml-projects</span> repo</p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="#full" class="rounded-2xl bg-teal-500 text-charcoal px-5 py-2.5 font-semibold shadow-soft hover:shadow-none hover:-translate-y-0.5 transition">
+            Read Full Case
+          </a>
+          <a href="#results" class="rounded-2xl frost px-5 py-2.5 font-semibold text-off/90 hover:text-white transition">
+            Jump to Results
+          </a>
+        </div>
+      </div>
+      <aside class="md:col-span-4 reveal">
+        <div class="card rounded-2xl p-4 md:p-5 shadow-soft">
+          <h3 class="hfont font-semibold text-teal-200">At-a-Glance</h3>
+          <ul class="mt-3 space-y-2 text-sm/6 text-white/85">
+            <li>• Dataset: <span class="text-teal-200">150 samples</span>, 4 features</li>
+            <li>• Task: Multi-class classification (3 species)</li>
+            <li>• Stack: Python, scikit-learn, Matplotlib</li>
+            <li>• Focus: Baselines, overfitting, interpretability</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Subtle moving bento accents -->
+    <div aria-hidden class="pointer-events-none absolute inset-0 [mask-image:radial-gradient(60%_60%_at_50%_50%,black,transparent)]">
+      <div class="absolute -top-12 -right-12 h-48 w-48 rounded-3xl bg-teal-400/10 blur-2xl"></div>
+      <div class="absolute bottom-6 left-8 h-40 w-40 rounded-full bg-teal-300/10 blur-2xl"></div>
+    </div>
+  </section>
+
+  <!-- BODY WRAPPER -->
+  <main id="full" class="relative mx-auto max-w-6xl px-4 py-16 space-y-24">
+
+    <!-- Section: Dataset / Problem -->
+    <section id="dataset" class="grid md:grid-cols-12 gap-10 items-center">
+      <div class="md:col-span-5 reveal">
+        <div class="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-soft">
+          <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1452570053594-1b985d6ea890?q=80&w=1400&auto=format&fit=crop')] bg-cover bg-center"></div>
+          <div class="absolute inset-0 bg-gradient-to-tr from-charcoal/60 via-teal-900/30 to-transparent"></div>
+        </div>
+      </div>
+      <div class="md:col-span-7 reveal">
+        <h2 class="hfont text-2xl md:text-3xl font-semibold">Dataset — A Small but Complete Sandbox</h2>
+        <p class="mt-4 text-white/85 leading-relaxed">
+          The Iris dataset is tiny by modern standards, but it’s perfect for testing out end-to-end ML habits.
+          We have 150 labeled flowers, 4 numeric features (sepal &amp; petal measurements), and 3 species:
+          <span class="text-teal-200 font-medium">setosa</span>, <span class="text-teal-200 font-medium">versicolor</span>, and
+          <span class="text-teal-200 font-medium">virginica</span>. The goal: build a clear, reproducible pipeline that
+          favors <em>interpretability</em> over leaderboard chasing.
+        </p>
+        <p class="mt-3 text-white/80 leading-relaxed">
+          In this project, I treat Iris like a miniature production problem: clear splits, feature scaling where needed,
+          simple baselines, and visualization of decision boundaries rather than just reporting a single accuracy number.
+        </p>
+      </div>
+    </section>
+
+    <!-- Section: Framework -->
+    <section id="framework" class="reveal">
+      <div class="grid md:grid-cols-12 gap-8 items-start">
+        <div class="md:col-span-5">
+          <h2 class="hfont text-2xl md:text-3xl font-semibold">Modeling Framework</h2>
+          <p class="mt-3 text-white/85">
+            The codebase walks through the full pipeline: loading, splitting, preprocessing, modeling, and evaluation.
+            Each step is intentionally minimal, so the patterns can scale to larger datasets without changing the mental model.
+          </p>
+          <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="card rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-wider text-white/60">Layer 1</p>
+              <p class="hfont text-lg font-semibold text-teal-200">Data Prep</p>
+              <p class="text-sm text-white/80 mt-1">Train / test split · feature scaling · label encoding</p>
+            </div>
+            <div class="card rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-wider text-white/60">Layer 2</p>
+              <p class="hfont text-lg font-semibold text-teal-200">Models</p>
+              <p class="text-sm text-white/80 mt-1">Logistic Regression · Random Forest · SVM</p>
+            </div>
+            <div class="card rounded-2xl p-4">
+              <p class="text-xs uppercase tracking-wider text-white/60">Layer 3</p>
+              <p class="hfont text-lg font-semibold text-teal-200">Insights</p>
+              <p class="text-sm text-white/80 mt-1">Confusion matrices · decision regions · feature importance</p>
+            </div>
+          </div>
+        </div>
+        <div class="md:col-span-7">
+          <div class="rounded-3xl frost shadow-soft p-6">
+            <div class="grid sm:grid-cols-2 gap-6">
+              <div class="rounded-2xl bg-gradient-to-br from-teal-600/40 to-teal-900/20 p-5 border border-white/10">
+                <h3 class="hfont font-semibold text-teal-100">Train / Test Discipline</h3>
+                <p class="text-sm text-white/85 mt-2">
+                  Models use a held-out test split and stratified cross-validation. Even on Iris, the habit of
+                  separating tuning from evaluation matters more than the final percent or two.
+                </p>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-br from-teal-600/40 to-teal-900/20 p-5 border border-white/10">
+                <h3 class="hfont font-semibold text-teal-100">Model Baselines</h3>
+                <p class="text-sm text-white/85 mt-2">
+                  Start with multinomial logistic regression, then layer in tree-based models and SVM. Each model has
+                  a clear role: baselines vs. non-linear boundaries vs. robustness.
+                </p>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-br from-teal-600/40 to-teal-900/20 p-5 border border-white/10">
+                <h3 class="hfont font-semibold text-teal-100">Explainability</h3>
+                <p class="text-sm text-white/85 mt-2">
+                  Decision regions and feature importance plots make it obvious which measurements separate species —
+                  moving the project from “black box” to “teachable story”.
+                </p>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-br from-teal-600/40 to-teal-900/20 p-5 border border-white/10">
+                <h3 class="hfont font-semibold text-teal-100">Reusable Patterns</h3>
+                <p class="text-sm text-white/85 mt-2">
+                  The same structure can be lifted into larger work: replace Iris with your own dataset, keep the
+                  split / fit / evaluate loop intact, and extend metrics as needed.
+                </p>
+              </div>
+            </div>
+            <div class="mt-6 p-4 text-sm text-white/90 rounded-xl bg-charcoal/60 border border-white/10 italic">
+              “If I can’t explain why the model chose a class on a tiny dataset, I won’t trust it later on a big one.”
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Results -->
+    <section id="results" class="reveal">
+      <h2 class="hfont text-2xl md:text-3xl font-semibold">Results — Beyond a Single Accuracy Number</h2>
+      <p class="mt-3 text-white/80 max-w-3xl">
+        Performance on Iris is famously “good”. The real point of this repo is to separate healthy evaluation from
+        leaderboard screenshots, and to build intuition about where models disagree.
+      </p>
+      <div class="mt-6 grid sm:grid-cols-3 gap-4">
+        <div class="rounded-3xl frost p-6 shadow-soft text-center">
+          <p class="text-sm uppercase tracking-wider text-white/70">Test accuracy (best model)</p>
+          <p class="hfont text-4xl font-bold text-teal-200 mt-2">≈ 96%</p>
+          <p class="text-white/70 text-sm mt-1">On held-out test split</p>
+        </div>
+        <div class="rounded-3xl frost p-6 shadow-soft text-center">
+          <p class="text-sm uppercase tracking-wider text-white/70">Macro F1 score</p>
+          <p class="hfont text-4xl font-bold text-teal-200 mt-2">≈ 0.96</p>
+          <p class="text-white/70 text-sm mt-1">Balanced across all three classes</p>
+        </div>
+        <div class="rounded-3xl frost p-6 shadow-soft text-center">
+          <p class="text-sm uppercase tracking-wider text-white/70">Misclassifications</p>
+          <p class="hfont text-4xl font-bold text-teal-200 mt-2">Mostly 2↔3</p>
+          <p class="text-white/70 text-sm mt-1">Versicolor vs. Virginica boundary, as expected</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Learnings / Engineering Habits -->
+    <section id="learnings" class="reveal">
+      <div class="rounded-3xl bg-gradient-to-br from-charcoal to-teal-900/30 border border-white/10 p-8 shadow-soft">
+        <blockquote class="hfont text-2xl md:text-3xl font-semibold text-off/95 text-center">
+          “Small datasets are where you practice the habits you need for big ones.”
+        </blockquote>
+        <div class="mt-8 grid md:grid-cols-3 gap-4">
+          <div class="card rounded-2xl p-5">
+            <p class="hfont font-semibold text-teal-100">Modeling Habits</p>
+            <p class="text-white/85 text-sm mt-1">
+              Start simple, document assumptions, and log configuration. Treat every run as if someone else will
+              reproduce it six months from now.
+            </p>
+          </div>
+          <div class="card rounded-2xl p-5">
+            <p class="hfont font-semibold text-teal-100">Experiment Discipline</p>
+            <p class="text-white/85 text-sm mt-1">
+              Separate tuning from evaluation, even when it feels like overkill. Iris is a sandbox for
+              learning why that matters.
+            </p>
+          </div>
+          <div class="card rounded-2xl p-5">
+            <p class="hfont font-semibold text-teal-100">Communication</p>
+            <p class="text-white/85 text-sm mt-1">
+              Visuals (decision regions, confusion matrices) make it easier to explain “what the model sees”
+              to non-ML teammates.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Looking Ahead -->
+    <section id="future" class="reveal">
+      <div class="relative overflow-hidden rounded-3xl p-10 border border-white/10 shadow-soft">
+        <div class="absolute inset-0 bg-gradient-to-br from-teal-600/25 via-teal-900/20 to-charcoal"></div>
+        <div class="relative">
+          <h2 class="hfont text-2xl md:text-3xl font-semibold">Next Steps</h2>
+          <p class="text-white/85 mt-3 max-w-3xl">
+            The Iris project is intentionally small, but the patterns extend outward: swap in tabular production data,
+            plug in more robust evaluation (ROC curves, calibration, drift checks), and wrap the pipeline in a simple
+            API or dashboard. The goal is to have <em>one</em> mental template that scales from toy datasets to real
+            ML products.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Repo Link -->
+    <section id="repo" class="reveal">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="rounded-3xl frost p-8 shadow-soft">
+          <h2 class="hfont text-2xl font-semibold">Explore the Code</h2>
+          <p class="text-white/80 mt-3">
+            The full implementation lives in my <span class="font-medium">ml-projects</span> repository, alongside
+            other experiments in supervised learning and model evaluation.
+          </p>
+          <a
+            href="https://github.com/YOUR_USERNAME/ml-projects/tree/main/iris-classifier"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center mt-5 rounded-2xl bg-teal-500 text-charcoal px-6 py-2.5 font-semibold shadow-soft hover:shadow-none hover:-translate-y-0.5 transition"
+          >
+            Open Iris Classifier on GitHub
+          </a>
+          <p class="text-xs text-white/50 mt-2">
+            (Update the URL above to match your actual repo path.)
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer / Author Note -->
+    <section class="reveal">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="h-px w-full bg-white/10 mb-6"></div>
+        <p class="text-white/70">Created as part of an ML practice library. All code is open for learning and adaptation.</p>
+        <p class="text-white/50 mt-2">© Ali Ahmed 2025 · Ali Ahmed Co.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Simple intersection observer for reveal animations -->
+  <script>
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+      })
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
