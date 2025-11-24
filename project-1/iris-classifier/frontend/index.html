@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MNIST Classifier Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Case study</p>
+        <h1>Teaching a Simple Model to Read Handwritten Digits</h1>
+        <p>
+          We framed the challenge as a classic computer-vision lesson: can a
+          lightweight <strong>logistic regression</strong> model understand the
+          <strong>MNIST dataset</strong> after basic
+          <strong>standardization</strong>? This page narrates the process—from
+          raw training data to sample <strong>inference</strong> stories—so you
+          can see what worked, what failed, and how to reproduce it locally.
+        </p>
+      </div>
+      <aside id="meta-summary" class="hero-meta">
+        <h3>Fast facts</h3>
+        <ul>
+          <li><span>Total test images</span> <strong id="stat-total">–</strong></li>
+          <li><span>Overall accuracy</span> <strong id="stat-accuracy">–</strong></li>
+          <li><span>Best digit</span> <strong id="stat-best-label">–</strong></li>
+          <li><span>Hardest digit</span> <strong id="stat-worst-label">–</strong></li>
+          <li><span>Generated</span> <strong id="stat-generated">–</strong></li>
+        </ul>
+      </aside>
+    </header>
+
+    <main>
+      <section class="material-card">
+        <div class="section-heading">
+          <h2>Problem Statement</h2>
+        </div>
+        <p>
+          Handwritten numerals vary wildly in stroke, thickness, and shape. We
+          wanted a dependable classifier that can label 28×28 grayscale images
+          without resorting to deep learning. The hypothesis: with proper
+          scaling, a multinomial logistic regression trained on the TensorFlow
+          MNIST split could surpass 90% accuracy while remaining portable enough
+          for offline inference.
+        </p>
+      </section>
+
+      <section class="material-card">
+        <div class="section-heading">
+          <h2>Method &amp; Pipeline</h2>
+          <p>A three-step recipe keeps the experiment reproducible.</p>
+        </div>
+        <ol class="steps">
+          <li>
+            <strong>Load &amp; prep:</strong> download MNIST via TensorFlow,
+            flatten each 28×28 sample, and convert to floats.
+          </li>
+          <li>
+            <strong>Scale consistently:</strong> fit a `StandardScaler` on the
+            training split to zero-center every pixel feature, then reuse it for
+            test data and future inference.
+          </li>
+          <li>
+            <strong>Train &amp; validate:</strong> run multinomial logistic
+            regression (mini-batch gradient descent when sklearn is absent),
+            evaluate on the hold-out test set, and store both the model/scaler as
+            pickle files.
+          </li>
+        </ol>
+      </section>
+
+      <section class="material-card">
+        <div class="section-heading">
+          <h2>Training Snapshot</h2>
+          <p>Key takeaways pulled from the latest backend report.</p>
+        </div>
+        <div class="insight-grid">
+          <article>
+            <h3>Accuracy trend</h3>
+            <p id="insight-accuracy">
+              Loading metrics&hellip;
+            </p>
+          </article>
+          <article>
+            <h3>Reliable classes</h3>
+            <p id="insight-best">
+              Loading metrics&hellip;
+            </p>
+          </article>
+          <article>
+            <h3>Challenging classes</h3>
+            <p id="insight-worst">
+              Loading metrics&hellip;
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="material-card">
+        <div class="section-heading">
+          <h2>Classification Report</h2>
+          <p>The same report you’d expect from scikit-learn, now embedded for quick review.</p>
+        </div>
+        <div class="table-wrapper">
+          <table id="report-table">
+            <thead>
+              <tr>
+                <th>Digit</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-score</th>
+                <th>Support</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="material-card">
+        <div class="section-heading">
+          <h2>Digit-by-Digit Reference</h2>
+          <p>
+            Each tile pairs the metric profile for a digit with a representative
+            test example so you can see what the classifier actually saw.
+          </p>
+        </div>
+        <div class="samples-grid" id="digit-cards"></div>
+      </section>
+
+      <section class="material-card">
+        <div class="section-heading">
+          <h2>What We Learned</h2>
+        </div>
+        <ul class="takeaways" id="insight-takeaways">
+          <li>Waiting for data&hellip;</li>
+        </ul>
+        <p class="footnote">
+          Recreate every step locally by running
+          <code>python main.py</code> followed by
+          <code>python backend/pipeline.py</code>, then open this page via
+          <code>python -m http.server 8000</code>.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <small>
+        Data file:
+        <code>backend/output/predictions.json</code>
+      </small>
+    </footer>
+    <script src="app.js"></script>
+  </body>
+</html>
